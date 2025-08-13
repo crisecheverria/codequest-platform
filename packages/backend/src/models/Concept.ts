@@ -5,13 +5,13 @@ export interface Concept extends Document {
   slug: string;
   description: string;
   category: "fundamentals" | "intermediate" | "advanced" | "algorithms";
-  language: "typescript" | "javascript" | "php" | "go" | "all"; // Added PHP and Go as language options
+  language: "typescript" | "javascript" | "php" | "go" | "all" | "agnostic"; // Added PHP, Go, and agnostic as language options
   order: number;
   dependencies?: string[]; // concepts that should be learned first
   resources: {
     title: string;
     url: string;
-    type: "article" | "video" | "documentation" | "repository";
+    type: "article" | "video" | "documentation" | "repository" | "tutorial" | "tool";
   }[];
 }
 
@@ -27,7 +27,7 @@ const ConceptSchema = new Schema(
     },
     language: {
       type: String,
-      enum: ["typescript", "javascript", "php", "go", "all"], // Added PHP and Go to enum
+      enum: ["typescript", "javascript", "php", "go", "all", "agnostic"], // Added PHP, Go, and agnostic to enum
       required: true,
     },
     order: { type: Number, required: true },
@@ -38,7 +38,7 @@ const ConceptSchema = new Schema(
         url: { type: String, required: true },
         type: {
           type: String,
-          enum: ["article", "video", "documentation", "repository"],
+          enum: ["article", "video", "documentation", "repository", "tutorial", "tool"],
           required: true,
         },
       },
