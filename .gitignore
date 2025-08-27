@@ -44,3 +44,6 @@ repomix-output.txt
 # Don't exclude data directory, as it contains our source JSON files
 # data/
 .aider*
+
+# Ignore Cursor IDE files
+.cursor/

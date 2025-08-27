@@ -16,7 +16,7 @@ import certificatesRoutes from "./routes/certificates";
 import leaderboardRoutes from "./routes/leaderboard";
 import tutorialRoutes from "./routes/tutorials";
 
-const app: Express = express();
+export const app: Express = express();
 const port = config.port;
 // Add startup logging
 console.log("Starting application...");
@@ -77,7 +77,7 @@ const startServer = async () => {
     process.exit(1);
   }
 };
-
+if (require.main === module) {
 // Start the server
 startServer().catch((error) => {
   console.error("Startup error:", error);
@@ -88,5 +88,6 @@ startServer().catch((error) => {
 process.on("unhandledRejection", (error) => {
   console.error("Unhandled promise rejection:", error);
   // Close server & exit process
-  process.exit(1);
-});
+    process.exit(1);
+  });
+}
