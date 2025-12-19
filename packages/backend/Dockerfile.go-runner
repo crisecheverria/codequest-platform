@@ -3,31 +3,34 @@ FROM golang:1.21-alpine
 # Install necessary packages for faster builds
 RUN apk add --no-cache git ca-certificates
 
-# Pre-warm the module cache with common dependencies
-RUN go env -w GOPROXY=https://proxy.golang.org,direct && \
-    go env -w GOSUMDB=sum.golang.org && \
-    go env -w GOCACHE=/tmp/gocache && \
-    go env -w GOMODCACHE=/tmp/gomodcache
+# Create persistent cache directories with proper permissions
+RUN mkdir -p /go/pkg/mod /go/cache /code/temp && \
+    chmod -R 777 /go/pkg/mod /go/cache /code/temp
 
-# Create working directory and cache directories
-WORKDIR /code
-RUN mkdir -p /tmp/gocache /tmp/gomodcache /code/temp && \
-    chmod 777 /tmp/gocache /tmp/gomodcache /code/temp
-
-# Copy and build the precompiled Go executor
-COPY go-executor/go-executor /usr/local/bin/go-executor
-RUN chmod +x /usr/local/bin/go-executor
-
-# Pre-compile common standard library packages to speed up builds
-RUN echo 'package main; import ("encoding/json"; "fmt"; "reflect"); func main() { _ = json.Marshal; _ = fmt.Sprintf; _ = reflect.DeepEqual }' > /tmp/warmup.go && \
-    cd /tmp && go build -o /dev/null warmup.go && rm warmup.go
-
-# Set Go environment variables for faster compilation
+# Set Go environment variables for optimal performance
+ENV GOMODCACHE=/go/pkg/mod
+ENV GOCACHE=/go/cache
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
-ENV GOCACHE=/tmp/gocache
-ENV GOMODCACHE=/tmp/gomodcache
+ENV GOPROXY=https://proxy.golang.org,direct
+ENV GOSUMDB=sum.golang.org
+ENV GO111MODULE=on
+
+# Pre-warm cache with common packages used in coding challenges
+WORKDIR /prebuild
+RUN printf 'module prebuild\ngo 1.21\n\nrequire (\n\tgolang.org/x/text v0.14.0\n)' > go.mod && \
+    printf 'package main\n\nimport (\n\t"encoding/json"\n\t"fmt"\n\t"reflect"\n\t"sort"\n\t"strings"\n\t"strconv"\n\t"math"\n\t"regexp"\n\t"time"\n\t"unicode"\n\t"golang.org/x/text/unicode/norm"\n)\n\nfunc main() {\n\t_ = json.Marshal\n\t_ = fmt.Sprintf\n\t_ = reflect.DeepEqual\n\t_ = sort.Ints\n\t_ = strings.Join\n\t_ = strconv.Itoa\n\t_ = math.Max\n\t_ = regexp.Compile\n\t_ = time.Now\n\t_ = unicode.IsLetter\n\t_ = norm.NFC\n}' > main.go && \
+    go mod tidy && \
+    go build -ldflags "-s -w" -o /dev/null main.go && \
+    rm -rf /prebuild
+
+# Copy and setup the precompiled Go executor
+COPY go-executor/go-executor /usr/local/bin/go-executor
+RUN chmod +x /usr/local/bin/go-executor
+
+# Create working directory
+WORKDIR /code
 
 # Default command
 CMD ["go-executor"]

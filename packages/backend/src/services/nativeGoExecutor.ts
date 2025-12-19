@@ -1,9 +1,9 @@
-import { spawn } from 'child_process';
-import { TestCase, ExecutionResult, SubmissionResult } from '../types';
-import path from 'path';
-import fs from 'fs/promises';
-import os from 'os';
-import { config } from '../config';
+import { spawn } from "child_process";
+import { TestCase, ExecutionResult, SubmissionResult } from "../types";
+import path from "path";
+import fs from "fs/promises";
+import os from "os";
+import { config } from "../config";
 
 interface ChallengeMetadata {
   functionName: string;
@@ -24,8 +24,36 @@ export class NativeGoExecutor {
 
   constructor() {
     this.TIMEOUT_MS = config.executor.nativeGoTimeout;
-    console.log(`Native Go Executor initialized with ${this.TIMEOUT_MS}ms timeout for compilation + execution`);
+    console.log(
+      `Native Go Executor initialized with ${this.TIMEOUT_MS}ms timeout for compilation + execution`,
+    );
     console.log(`Environment: ${config.environment}`);
+
+    // Ensure cache directories exist
+    this.ensureCacheDirectories();
+  }
+
+  /**
+   * Ensure persistent cache directories exist for faster compilation
+   */
+  private async ensureCacheDirectories(): Promise<void> {
+    try {
+      const cacheDir =
+        process.env.GOCACHE || path.join(os.tmpdir(), "codequest-gocache");
+      const modCacheDir =
+        process.env.GOMODCACHE ||
+        path.join(os.tmpdir(), "codequest-gomodcache");
+
+      await fs.mkdir(cacheDir, { recursive: true });
+      await fs.mkdir(modCacheDir, { recursive: true });
+
+      console.log(
+        `Native Go cache directories ready: ${cacheDir}, ${modCacheDir}`,
+      );
+    } catch (error) {
+      console.warn(`Warning: Failed to create Go cache directories: ${error}`);
+      // Continue without persistent cache
+    }
   }
 
   /**
@@ -33,10 +61,10 @@ export class NativeGoExecutor {
    */
   private async checkGoAvailability(): Promise<boolean> {
     return new Promise((resolve) => {
-      const childProcess = spawn('go', ['version']);
+      const childProcess = spawn("go", ["version"]);
       let isResolved = false;
       let timeoutId: ReturnType<typeof setTimeout>;
-      
+
       const resolveOnce = (result: boolean) => {
         if (!isResolved) {
           isResolved = true;
@@ -46,15 +74,15 @@ export class NativeGoExecutor {
           resolve(result);
         }
       };
-      
-      childProcess.on('close', (code) => {
+
+      childProcess.on("close", (code) => {
         resolveOnce(code === 0);
       });
-      
-      childProcess.on('error', () => {
+
+      childProcess.on("error", () => {
         resolveOnce(false);
       });
-      
+
       // Timeout after 5 seconds
       timeoutId = setTimeout(() => {
         childProcess.kill();
@@ -68,7 +96,7 @@ export class NativeGoExecutor {
    * Based on the CLI's code cleaning approach
    */
   private cleanGoUserCode(code: string): string {
-    const lines = code.split('\n');
+    const lines = code.split("\n");
     const cleanedLines: string[] = [];
     let inImportBlock = false;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
@@ -78,37 +106,40 @@ export class NativeGoExecutor {
 
     for (const line of lines) {
       const trimmedLine = line.trim();
-      
+
       // Skip package declarations
-      if (trimmedLine.startsWith('package ')) {
+      if (trimmedLine.startsWith("package ")) {
         continue;
       }
 
       // Handle import blocks
-      if (trimmedLine.startsWith('import (')) {
+      if (trimmedLine.startsWith("import (")) {
         inImportBlock = true;
         continue;
       }
       if (inImportBlock) {
-        if (trimmedLine === ')') {
+        if (trimmedLine === ")") {
           inImportBlock = false;
         }
         continue;
       }
-      
+
       // Skip single line imports
-      if (trimmedLine.startsWith('import ')) {
+      if (trimmedLine.startsWith("import ")) {
         continue;
       }
 
       // Detect main function start
-      if (trimmedLine.includes('func main()') || trimmedLine.includes('func main() ')) {
+      if (
+        trimmedLine.includes("func main()") ||
+        trimmedLine.includes("func main() ")
+      ) {
         inMainFunction = true;
         mainFunctionBraceCount = 0;
         // Count braces on the same line
         for (const char of line) {
-          if (char === '{') mainFunctionBraceCount++;
-          if (char === '}') mainFunctionBraceCount--;
+          if (char === "{") mainFunctionBraceCount++;
+          if (char === "}") mainFunctionBraceCount--;
         }
         continue;
       }
@@ -116,8 +147,8 @@ export class NativeGoExecutor {
       // Skip main function content
       if (inMainFunction) {
         for (const char of line) {
-          if (char === '{') mainFunctionBraceCount++;
-          if (char === '}') mainFunctionBraceCount--;
+          if (char === "{") mainFunctionBraceCount++;
+          if (char === "}") mainFunctionBraceCount--;
         }
         if (mainFunctionBraceCount <= 0) {
           inMainFunction = false;
@@ -129,7 +160,7 @@ export class NativeGoExecutor {
       cleanedLines.push(line);
     }
 
-    return cleanedLines.join('\n');
+    return cleanedLines.join("\n");
   }
 
   /**
@@ -138,19 +169,22 @@ export class NativeGoExecutor {
   private generateGoTestCode(
     userCode: string,
     testCases: TestCase[],
-    metadata: ChallengeMetadata
+    metadata: ChallengeMetadata,
   ): string {
     const cleanedUserCode = this.cleanGoUserCode(userCode);
-    
+
     // Generate individual test case execution
-    const testCaseExecutions = testCases.map((testCase, index) => {
-      const inputs = Array.isArray(testCase.input) ? testCase.input : [testCase.input];
-      const expected = testCase.expected;
-      
-      // Generate function call with proper type casting
-      const functionCall = this.generateFunctionCall(metadata, inputs, index);
-      
-      return `
+    const testCaseExecutions = testCases
+      .map((testCase, index) => {
+        const inputs = Array.isArray(testCase.input)
+          ? testCase.input
+          : [testCase.input];
+        const expected = testCase.expected;
+
+        // Generate function call with proper type casting
+        const functionCall = this.generateFunctionCall(metadata, inputs, index);
+
+        return `
   // Test case ${index + 1}
   {
     var result interface{}
@@ -176,7 +210,8 @@ export class NativeGoExecutor {
     
     results = append(results, testResult)
   }`;
-    }).join('\n');
+      })
+      .join("\n");
 
     return `
 package main
@@ -241,34 +276,42 @@ func main() {
     metadata: ChallengeMetadata,
     inputs: any[],
     // eslint-disable-next-line no-unused-vars
-    _testIndex: number
+    _testIndex: number,
   ): string {
     const { functionName, parameterTypes } = metadata;
-    
+
     if (inputs.length === 0) {
       return `result = ${functionName}()`;
     }
-    
+
     // Generate type-specific argument casting
-    const args = inputs.map((input, i) => {
-      const paramType = parameterTypes[i] || 'interface{}';
-      const value = JSON.stringify(input);
-      
-      switch (paramType.toLowerCase()) {
-        case 'int':
-          return typeof input === 'number' ? input.toString() : `int(${value})`;
-        case 'string':
-          return value;
-        case 'float64':
-        case 'float32':
-          return typeof input === 'number' ? input.toString() : `float64(${value})`;
-        case 'bool':
-          return typeof input === 'boolean' ? input.toString() : `bool(${value})`;
-        default:
-          return value;
-      }
-    }).join(', ');
-    
+    const args = inputs
+      .map((input, i) => {
+        const paramType = parameterTypes[i] || "interface{}";
+        const value = JSON.stringify(input);
+
+        switch (paramType.toLowerCase()) {
+          case "int":
+            return typeof input === "number"
+              ? input.toString()
+              : `int(${value})`;
+          case "string":
+            return value;
+          case "float64":
+          case "float32":
+            return typeof input === "number"
+              ? input.toString()
+              : `float64(${value})`;
+          case "bool":
+            return typeof input === "boolean"
+              ? input.toString()
+              : `bool(${value})`;
+          default:
+            return value;
+        }
+      })
+      .join(", ");
+
     return `result = ${functionName}(${args})`;
   }
 
@@ -277,59 +320,74 @@ func main() {
    */
   private async executeGoCode(
     goCode: string,
-    timeoutMs: number
+    timeoutMs: number,
   ): Promise<GoExecutionResult> {
     const startTime = Date.now();
-    
+
     console.log(`🏗️  Starting Go execution with ${timeoutMs}ms timeout`);
-    
+
     // Create unique execution directory
-    const execDir = await fs.mkdtemp(path.join(os.tmpdir(), 'go-native-'));
+    const execDir = await fs.mkdtemp(path.join(os.tmpdir(), "go-native-"));
     console.log(`📁 Created execution directory: ${execDir}`);
-    
+
     try {
       // Write Go code to main.go
-      const mainFile = path.join(execDir, 'main.go');
+      const mainFile = path.join(execDir, "main.go");
       await fs.writeFile(mainFile, goCode);
       console.log(`📝 Written Go code to ${mainFile} (${goCode.length} chars)`);
 
       // Initialize Go module
       console.log(`🔧 Initializing Go module...`);
       const initStartTime = Date.now();
-      const initResult = await this.runCommand('go', ['mod', 'init', 'solution'], execDir, 10000); // 10s for init
+      const initResult = await this.runCommand(
+        "go",
+        ["mod", "init", "solution"],
+        execDir,
+        10000,
+      ); // 10s for init
       const initDuration = Date.now() - initStartTime;
-      console.log(`🔧 Go module init completed in ${initDuration}ms (success: ${initResult.success})`);
-      
+      console.log(
+        `🔧 Go module init completed in ${initDuration}ms (success: ${initResult.success})`,
+      );
+
       if (!initResult.success) {
         return {
           success: false,
-          output: '',
+          output: "",
           error: `Go module initialization failed: ${initResult.error}`,
           duration: Date.now() - startTime,
-          exitCode: initResult.exitCode
+          exitCode: initResult.exitCode,
         };
       }
 
       // Execute go run main.go
       console.log(`🚀 Starting Go compilation and execution...`);
       const runStartTime = Date.now();
-      const runResult = await this.runCommand('go', ['run', 'main.go'], execDir, timeoutMs - initDuration);
+      const runResult = await this.runCommand(
+        "go",
+        ["run", "main.go"],
+        execDir,
+        timeoutMs - initDuration,
+      );
       const runDuration = Date.now() - runStartTime;
-      console.log(`🚀 Go run completed in ${runDuration}ms (success: ${runResult.success})`);
-      
-      if (!runResult.success && runResult.error?.includes('timed out')) {
+      console.log(
+        `🚀 Go run completed in ${runDuration}ms (success: ${runResult.success})`,
+      );
+
+      if (!runResult.success && runResult.error?.includes("timed out")) {
         console.error(`⏰ Go execution timed out after ${runDuration}ms`);
-        console.error(`📊 Timing breakdown: Init=${initDuration}ms, Run=${runDuration}ms, Total=${Date.now() - startTime}ms`);
+        console.error(
+          `📊 Timing breakdown: Init=${initDuration}ms, Run=${runDuration}ms, Total=${Date.now() - startTime}ms`,
+        );
       }
-      
+
       return {
         success: runResult.success,
         output: runResult.output,
         error: runResult.error,
         duration: Date.now() - startTime,
-        exitCode: runResult.exitCode
+        exitCode: runResult.exitCode,
       };
-
     } finally {
       // Clean up execution directory
       try {
@@ -347,28 +405,40 @@ func main() {
     command: string,
     args: string[],
     cwd: string,
-    timeoutMs: number
-  ): Promise<{ success: boolean; output: string; error?: string; exitCode: number }> {
+    timeoutMs: number,
+  ): Promise<{
+    success: boolean;
+    output: string;
+    error?: string;
+    exitCode: number;
+  }> {
     return new Promise((resolve) => {
-      // Set Go environment variables to use temporary directories
+      // Set Go environment variables for optimal performance
       const env: Record<string, string> = {
         ...process.env,
-        GOCACHE: path.join(cwd, '.gocache'), // Use execution directory for Go build cache
-        GOPATH: path.join(cwd, '.gopath'),   // Set temporary GOPATH
-        GO111MODULE: 'on',                   // Ensure module mode is enabled
-        CGO_ENABLED: '0',                    // Disable CGO for faster compilation and better portability
-        GOPROXY: 'direct',                   // Use direct mode to avoid proxy delays
-        GOSUMDB: 'off'                       // Disable checksum database for faster builds
+        GOCACHE:
+          process.env.GOCACHE || path.join(os.tmpdir(), "codequest-gocache"),
+        GOMODCACHE:
+          process.env.GOMODCACHE ||
+          path.join(os.tmpdir(), "codequest-gomodcache"),
+        GO111MODULE: "on", // Ensure module mode is enabled
+        CGO_ENABLED: "0", // Disable CGO for faster compilation and better portability
+        GOPROXY: "direct", // Use direct mode to avoid proxy delays
+        GOSUMDB: "off", // Disable checksum database for faster builds
       };
-      
-      console.log(`🔨 Running: ${command} ${args.join(' ')} (timeout: ${timeoutMs}ms)`);
+
+      console.log(
+        `🔨 Running: ${command} ${args.join(" ")} (timeout: ${timeoutMs}ms)`,
+      );
       console.log(`📂 Working directory: ${cwd}`);
-      console.log(`🌍 Environment: GOCACHE=${env.GOCACHE}, GO111MODULE=${env.GO111MODULE}, CGO_ENABLED=${env.CGO_ENABLED}`);
-      
+      console.log(
+        `🌍 Environment: GOCACHE=${env.GOCACHE}, GO111MODULE=${env.GO111MODULE}, CGO_ENABLED=${env.CGO_ENABLED}`,
+      );
+
       const childProcess = spawn(command, args, { cwd, env });
-      
-      let stdout = '';
-      let stderr = '';
+
+      let stdout = "";
+      let stderr = "";
       let timeoutId: ReturnType<typeof setTimeout>;
       let isResolved = false;
 
@@ -382,39 +452,41 @@ func main() {
 
       // Set timeout
       timeoutId = setTimeout(() => {
-        childProcess.kill('SIGKILL');
+        childProcess.kill("SIGKILL");
         resolveOnce({
           success: false,
           output: stdout,
           error: `Command timed out after ${timeoutMs}ms`,
-          exitCode: 124
+          exitCode: 124,
         });
       }, timeoutMs);
 
-      childProcess.stdout?.on('data', (data: any) => {
+      childProcess.stdout?.on("data", (data: any) => {
         stdout += data.toString();
       });
 
-      childProcess.stderr?.on('data', (data: any) => {
+      childProcess.stderr?.on("data", (data: any) => {
         stderr += data.toString();
       });
 
-      childProcess.on('close', (code: number | null) => {
+      childProcess.on("close", (code: number | null) => {
         const success = code === 0;
         resolveOnce({
           success,
           output: stdout,
-          error: success ? undefined : stderr || `Process exited with code ${code}`,
-          exitCode: code || 0
+          error: success
+            ? undefined
+            : stderr || `Process exited with code ${code}`,
+          exitCode: code || 0,
         });
       });
 
-      childProcess.on('error', (error: Error) => {
+      childProcess.on("error", (error: Error) => {
         resolveOnce({
           success: false,
           output: stdout,
           error: error.message,
-          exitCode: 1
+          exitCode: 1,
         });
       });
     });
@@ -425,17 +497,18 @@ func main() {
    */
   private processResults(
     goResult: GoExecutionResult,
-    testCases: TestCase[]
+    testCases: TestCase[],
   ): SubmissionResult {
     try {
       if (!goResult.success) {
-        const errorMessage = goResult.error?.includes('missing return')
+        const errorMessage = goResult.error?.includes("missing return")
           ? "Function is missing return statement. Make sure your function returns a value."
-          : goResult.error?.includes('syntax error')
-          ? "Syntax error in your Go code. Please check your code for errors."
-          : goResult.error?.includes('build failed') || goResult.error?.includes('compilation')
-          ? "Go compilation failed. Please check your code for errors."
-          : `Go execution error: ${goResult.error || 'Unknown error'}`;
+          : goResult.error?.includes("syntax error")
+            ? "Syntax error in your Go code. Please check your code for errors."
+            : goResult.error?.includes("build failed") ||
+                goResult.error?.includes("compilation")
+              ? "Go compilation failed. Please check your code for errors."
+              : `Go execution error: ${goResult.error || "Unknown error"}`;
 
         return {
           success: false,
@@ -487,7 +560,7 @@ func main() {
           memoryUsed: 0,
           expected: result.expected,
           actual: result.actual,
-        })
+        }),
       );
 
       const allPassed = results.every((result) => result.passed);
@@ -503,9 +576,8 @@ func main() {
           totalTests: testCases.length,
         },
       };
-
     } catch (error) {
-      console.error('Error processing native Go results:', error);
+      console.error("Error processing native Go results:", error);
       return {
         success: false,
         results: testCases.map((testCase) => ({
@@ -531,16 +603,18 @@ func main() {
   async executeGo(
     code: string,
     testCases: TestCase[],
-    metadata: ChallengeMetadata
+    metadata: ChallengeMetadata,
   ): Promise<SubmissionResult> {
     try {
-      console.log('🚀 Native Go Executor: Starting execution');
+      console.log("🚀 Native Go Executor: Starting execution");
       const startTime = Date.now();
 
       // Check Go availability
       const goAvailable = await this.checkGoAvailability();
       if (!goAvailable) {
-        throw new Error('Go runtime not available on system. Please install Go or use Docker executor.');
+        throw new Error(
+          "Go runtime not available on system. Please install Go or use Docker executor.",
+        );
       }
 
       // Generate test harness code
@@ -549,20 +623,24 @@ func main() {
 
       // Execute the code
       const goResult = await this.executeGoCode(testCode, this.TIMEOUT_MS);
-      
+
       const totalTime = Date.now() - startTime;
-      console.log(`🎯 Native Go Executor: Completed in ${totalTime}ms (${goResult.success ? 'SUCCESS' : 'FAILED'})`);
+      console.log(
+        `🎯 Native Go Executor: Completed in ${totalTime}ms (${goResult.success ? "SUCCESS" : "FAILED"})`,
+      );
 
       return this.processResults(goResult, testCases);
-
     } catch (error) {
-      console.error('Native Go execution error:', error);
+      console.error("Native Go execution error:", error);
 
       return {
         success: false,
         results: testCases.map((testCase) => ({
           passed: false,
-          error: error instanceof Error ? error.message : 'Native Go execution failed',
+          error:
+            error instanceof Error
+              ? error.message
+              : "Native Go execution failed",
           testCase,
           executionTime: this.TIMEOUT_MS,
           memoryUsed: 0,

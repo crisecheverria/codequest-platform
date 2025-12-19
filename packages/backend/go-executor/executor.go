@@ -27,9 +27,9 @@ type TestResult struct {
 }
 
 type ExecutionMetadata struct {
-	FunctionName    string   `json:"functionName"`
-	ParameterTypes  []string `json:"parameterTypes"`
-	ReturnType      string   `json:"returnType"`
+	FunctionName   string   `json:"functionName"`
+	ParameterTypes []string `json:"parameterTypes"`
+	ReturnType     string   `json:"returnType"`
 }
 
 func main() {
@@ -81,9 +81,9 @@ func main() {
 }
 
 func executeCode(userCode string, testCases []TestCase, metadata ExecutionMetadata) []TestResult {
-	// Create temporary directory
-	tmpDir, err := ioutil.TempDir("/tmp", "go-exec-")
-	if err != nil {
+	// Use a more predictable temp directory location to leverage volume mounts
+	tmpDir := "/tmp/go-exec"
+	if err := os.MkdirAll(tmpDir, 0755); err != nil {
 		return []TestResult{{
 			Passed: false,
 			Error:  fmt.Sprintf("Failed to create temp dir: %v", err),
@@ -96,7 +96,7 @@ func executeCode(userCode string, testCases []TestCase, metadata ExecutionMetada
 
 	// Generate optimized test executable
 	executableCode := generateExecutableCode(cleanedCode, testCases, metadata)
-	
+
 	codeFile := filepath.Join(tmpDir, "main.go")
 	if err := ioutil.WriteFile(codeFile, []byte(executableCode), 0644); err != nil {
 		return []TestResult{{
@@ -105,15 +105,30 @@ func executeCode(userCode string, testCases []TestCase, metadata ExecutionMetada
 		}}
 	}
 
-	// Build executable (only user code + minimal test framework)
+	// Build executable with optimizations for faster compilation
 	execPath := filepath.Join(tmpDir, "test-exec")
-	buildCmd := exec.Command("go", "build", "-o", execPath, codeFile)
-	buildCmd.Env = append(os.Environ(), 
+
+	// Set shorter timeout for builds since cache should be warm
+	buildTimeout := 15 * time.Second
+	buildCtx, buildCancel := context.WithTimeout(context.Background(), buildTimeout)
+	defer buildCancel()
+
+	buildCmd := exec.CommandContext(buildCtx, "go", "build", "-ldflags", "-s -w", "-o", execPath, codeFile)
+	buildCmd.Env = append(os.Environ(),
 		"CGO_ENABLED=0",
-		"GOCACHE=/tmp/gocache",
+		"GOCACHE=/go/cache",      // Use persistent cache from volume mount
+		"GOMODCACHE=/go/pkg/mod", // Use persistent module cache
+		"GOPROXY=direct",         // Skip proxy for faster local builds
+		"GOSUMDB=off",            // Skip checksum verification for speed
 	)
 
 	if output, err := buildCmd.CombinedOutput(); err != nil {
+		if buildCtx.Err() == context.DeadlineExceeded {
+			return []TestResult{{
+				Passed: false,
+				Error:  fmt.Sprintf("Compilation timeout after %v\nPartial output: %s", buildTimeout, string(output)),
+			}}
+		}
 		return []TestResult{{
 			Passed: false,
 			Error:  fmt.Sprintf("Compilation failed: %v\nOutput: %s", err, string(output)),
@@ -121,29 +136,25 @@ func executeCode(userCode string, testCases []TestCase, metadata ExecutionMetada
 	}
 
 	// Execute the binary with timeout
-	execCmd := exec.Command(execPath)
-	execCmd.Dir = tmpDir
-	
-	// Set timeout for execution  
-	timeout := 5 * time.Second
-	
+	execTimeout := 10 * time.Second // Increased from 5s for complex test cases
+
 	// Create context with timeout for cleaner cancellation
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), execTimeout)
 	defer cancel()
-	
-	execCmd = exec.CommandContext(ctx, execPath)
+
+	execCmd := exec.CommandContext(ctx, execPath)
 	execCmd.Dir = tmpDir
-	
+
 	// Execute with timeout
 	output, execErr := execCmd.CombinedOutput()
-	
+
 	if ctx.Err() == context.DeadlineExceeded {
 		return []TestResult{{
 			Passed: false,
-			Error:  "Execution timeout",
+			Error:  fmt.Sprintf("Execution timeout after %v", execTimeout),
 		}}
 	}
-	
+
 	if execErr != nil {
 		return []TestResult{{
 			Passed: false,
@@ -166,36 +177,36 @@ func executeCode(userCode string, testCases []TestCase, metadata ExecutionMetada
 func cleanUserCode(code string) string {
 	lines := strings.Split(code, "\n")
 	var cleanedLines []string
-	
+
 	inImportBlock := false
 	inMainFunction := false
 	braceCount := 0
-	
+
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		
+
 		// Skip package declarations
 		if strings.HasPrefix(trimmed, "package ") {
 			continue
 		}
-		
+
 		// Skip imports (executor provides its own imports)
 		if strings.HasPrefix(trimmed, "import ") && !strings.Contains(trimmed, "(") {
 			continue
 		}
-		
+
 		if strings.HasPrefix(trimmed, "import (") {
 			inImportBlock = true
 			continue
 		}
-		
+
 		if inImportBlock {
 			if trimmed == ")" {
 				inImportBlock = false
 			}
 			continue
 		}
-		
+
 		// Skip user's main function
 		if strings.HasPrefix(trimmed, "func main(") {
 			inMainFunction = true
@@ -211,7 +222,7 @@ func cleanUserCode(code string) string {
 				continue
 			}
 		}
-		
+
 		if inMainFunction {
 			// Count braces to know when main function ends
 			for _, r := range line {
@@ -221,16 +232,16 @@ func cleanUserCode(code string) string {
 					braceCount--
 				}
 			}
-			
+
 			if braceCount <= 0 {
 				inMainFunction = false
 			}
 			continue
 		}
-		
+
 		cleanedLines = append(cleanedLines, line)
 	}
-	
+
 	// Remove empty lines at the beginning and end
 	for len(cleanedLines) > 0 && strings.TrimSpace(cleanedLines[0]) == "" {
 		cleanedLines = cleanedLines[1:]
@@ -238,13 +249,13 @@ func cleanUserCode(code string) string {
 	for len(cleanedLines) > 0 && strings.TrimSpace(cleanedLines[len(cleanedLines)-1]) == "" {
 		cleanedLines = cleanedLines[:len(cleanedLines)-1]
 	}
-	
+
 	return strings.Join(cleanedLines, "\n")
 }
 
 func generateExecutableCode(userCode string, testCases []TestCase, metadata ExecutionMetadata) string {
 	testCasesCode := generateTestCasesCode(testCases, metadata.FunctionName)
-	
+
 	return fmt.Sprintf(`package main
 
 import (
@@ -254,11 +265,11 @@ import (
 )
 
 type TestResult struct {
-	Passed      bool        ` + "`json:\"passed\"`" + `
-	Error       string      ` + "`json:\"error,omitempty\"`" + `
-	Expected    interface{} ` + "`json:\"expected\"`" + `
-	Actual      interface{} ` + "`json:\"actual,omitempty\"`" + `
-	Description string      ` + "`json:\"description\"`" + `
+	Passed      bool        `+"`json:\"passed\"`"+`
+	Error       string      `+"`json:\"error,omitempty\"`"+`
+	Expected    interface{} `+"`json:\"expected\"`"+`
+	Actual      interface{} `+"`json:\"actual,omitempty\"`"+`
+	Description string      `+"`json:\"description\"`"+`
 }
 
 %s
@@ -275,7 +286,7 @@ func main() {
 
 func generateTestCasesCode(testCases []TestCase, functionName string) string {
 	var testCode strings.Builder
-	
+
 	for testCaseIndex, testCase := range testCases {
 		// Convert inputs to Go code
 		var inputs []string
@@ -313,7 +324,7 @@ func generateTestCasesCode(testCases []TestCase, functionName string) string {
 				inputs = append(inputs, fmt.Sprintf("%v", v))
 			}
 		}
-		
+
 		// Convert expected output
 		var expected string
 		switch v := testCase.Expected.(type) {
@@ -347,7 +358,7 @@ func generateTestCasesCode(testCases []TestCase, functionName string) string {
 		default:
 			expected = fmt.Sprintf("%v", v)
 		}
-		
+
 		testCode.WriteString(fmt.Sprintf(`
 	// Test case %d: %s
 	{
@@ -370,7 +381,7 @@ func generateTestCasesCode(testCases []TestCase, functionName string) string {
 	}
 `, testCaseIndex+1, testCase.Description, expected, functionName, strings.Join(inputs, ", "), testCase.Description))
 	}
-	
+
 	return testCode.String()
 }
 
