@@ -1,6 +1,6 @@
 // packages/frontend/src/components/auth/index.tsx
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "../../api/config";
 
 export const Login = () => {
@@ -98,9 +98,16 @@ export const AuthCallback = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState("Initializing authentication...");
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
     const handleAuth = async () => {
+      // Prevent double execution in React Strict Mode
+      if (hasProcessed.current) {
+        return;
+      }
+      hasProcessed.current = true;
+
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
@@ -110,7 +117,21 @@ export const AuthCallback = () => {
         if (token) {
           setStatus("Processing authentication...");
           localStorage.setItem("token", token);
-          
+
+          // Fetch user data after getting token
+          try {
+            setStatus("Fetching user profile...");
+            const userResponse = await api.get("/api/auth/me", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            localStorage.setItem("user", JSON.stringify(userResponse.data));
+          } catch (userError) {
+            console.error("Error fetching user profile:", userError);
+            // Continue anyway, user profile can be fetched later
+          }
+
           // Check for return URL
           const returnTo = localStorage.getItem("returnTo") || "/dashboard";
           localStorage.removeItem("returnTo"); // Clean up
