@@ -15,28 +15,43 @@ A platform for creating and solving coding challenges, built with TypeScript, Re
 ## Supported Programming Languages
 
 Currently supported:
+
 - **TypeScript/JavaScript**
 - **PHP**
 - **Go**
 
 Coming soon:
+
 - **Python** - Challenges in development
 
 ## Screenshots
 
 ### Challenge Interface
+
 ![CodeQuest Challenge Interface](assets/codequest-challenge.png)
-*Interactive coding environment with real-time testing and AI assistance*
+_Interactive coding environment with real-time testing and AI assistance_
 
 ### User Dashboard
+
 ![CodeQuest Dashboard](assets/codequest-dashboard.png)
-*Progress tracking dashboard with achievements and statistics*
+_Progress tracking dashboard with achievements and statistics_
 
 ## Coquest CLI
 
 If you want to solve challenges from the command line, you can use the [Coquest CLI](https://github.com/crisecheverria/codequest). It allows you to interact with almost the same list of challenges directly from your terminal. And you can use your own code editor to solve them.
 
 ## Getting Started
+
+### Quick Start Summary
+
+1. **Clone** → `git clone https://github.com/crisecheverria/codequest-platform.git`
+2. **Install** → `npm install`
+3. **Start MongoDB** → `docker run --name mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password -d mongo`
+4. **Copy env files** → `cp packages/backend/.env.example packages/backend/.env` & `cp packages/frontend/.env.example packages/frontend/.env`
+5. **Setup GitHub OAuth** → Create OAuth app, update env files with real credentials
+6. **Seed database** → `cd packages/backend && npx ts-node src/scripts/seedChallenges.ts && npx ts-node src/scripts/seedConcepts.ts`
+7. **Start** → `npm run dev`
+8. **Visit** → `http://localhost:5173`
 
 ### Prerequisites
 
@@ -89,34 +104,124 @@ cp packages/frontend/.env.example packages/frontend/.env
 
 To enable user authentication, you'll need to set up GitHub OAuth:
 
-1. Go to GitHub Settings > Developer settings > OAuth Apps
-2. Create a new OAuth App with:
-   - Application name: Code Challenge Platform
-   - Homepage URL: `http://localhost:5173`
-   - Authorization callback URL: `http://localhost:3001/api/auth/github/callback`
-3. Copy the Client ID and Client Secret
-4. Add them to your environment files:
+1. Go to [GitHub Settings → Developer settings → OAuth Apps](https://github.com/settings/developers)
+2. Click **"New OAuth App"**
+3. Fill in the application details:
+   - **Application name**: `CodeQuest Platform` (or your preferred name)
+   - **Homepage URL**: `http://localhost:5173`
+   - **Application description**: `Local development for CodeQuest Platform` (optional)
+   - **Authorization callback URL**: `http://localhost:3001/api/auth/github/callback`
+4. Click **"Register application"**
+5. Copy the **Client ID** from the app page
+6. Click **"Generate a new client secret"** and copy the **Client Secret**
+7. Update your environment files with the real values:
 
-**Backend (.env)**:
-```
-GITHUB_CLIENT_ID=your-client-id
-GITHUB_CLIENT_SECRET=your-client-secret
-GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
-```
-
-**Frontend (.env)**:
-```
-VITE_GITHUB_CLIENT_ID=your-github-client-id
-VITE_GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
-```
-
-6. Start the Development Environment
+**Backend (`packages/backend/.env`)**:
 
 ```bash
+# GitHub OAuth Configuration
+GITHUB_CLIENT_ID=Ov23liXXXXXXXXXXXXX  # Replace with your actual Client ID
+GITHUB_CLIENT_SECRET=your-actual-client-secret  # Replace with your actual Client Secret
+GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
+
+# MongoDB Configuration (should already be set)
+MONGODB_URI=mongodb://admin:password@localhost:27017/code-challenges?authSource=admin
+JWT_SECRET=your-secret-key-change-this-in-production
+NODE_ENV=development
+```
+
+**Frontend (`packages/frontend/.env`)**:
+
+```bash
+# GitHub OAuth Configuration
+VITE_GITHUB_CLIENT_ID=Ov23liXXXXXXXXXXXXX  # Same as backend Client ID
+VITE_GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
+
+# API Configuration
+VITE_API_URL=http://localhost:3001
+```
+
+> ⚠️ **Important**: Replace the example values with your actual GitHub OAuth credentials!
+
+6. Seed the Database
+
+Before starting the application, you'll need to populate the database with challenges and concepts:
+
+```bash
+# Navigate to the backend package
+cd packages/backend
+
+# Seed challenges
+npx ts-node src/scripts/seedChallenges.ts
+
+# Seed concepts
+npx ts-node src/scripts/seedConcepts.ts
+```
+
+7. Start the Development Environment
+
+```bash
+# From the project root
 npm run dev
 ```
 
-This will start both the frontend and backend services. The frontend will be available at `http://localhost:5173` and the backend at `http://localhost:3001`.
+This will start both the frontend and backend services:
+
+- **Frontend**: `http://localhost:5173`
+- **Backend API**: `http://localhost:3001`
+
+You should now be able to:
+
+1. Visit `http://localhost:5173`
+2. Click "Continue with GitHub" to log in
+3. Start solving coding challenges!
+
+## Database Management
+
+### Re-seeding Data
+
+If you need to update or re-seed the database:
+
+```bash
+cd packages/backend
+
+# Re-seed challenges (updates existing, adds new)
+npx ts-node src/scripts/seedChallenges.ts
+
+# Re-seed concepts
+npx ts-node src/scripts/seedConcepts.ts
+```
+
+### Reset User Progress
+
+You can reset user progress if needed:
+
+```bash
+cd packages/backend
+# Reset all users (with confirmation)
+npx ts-node src/scripts/resetUserProgress.ts
+
+# Reset specific user
+npx ts-node src/scripts/resetUserProgress.ts --userId=user_id_here
+
+# Skip confirmation
+npx ts-node src/scripts/resetUserProgress.ts --yes
+
+# Completely remove progress data instead of resetting
+npx ts-node src/scripts/resetUserProgress.ts --remove
+```
+
+## Viewing the Database with MongoDB Compass
+
+You can use MongoDB Compass (a GUI for MongoDB) to visualize and interact with your database:
+
+1. Download and install [MongoDB Compass](https://www.mongodb.com/products/compass)
+2. Open MongoDB Compass
+3. Connect to your local MongoDB instance with the connection string:
+
+```
+mongodb://admin:password@localhost:27017/code-challenges?authSource=admin
+```
 
 ## AI Assistant
 
@@ -152,64 +257,24 @@ USE_EXTERNAL_AI_API=true
 The platform supports multiple code execution modes:
 
 ### Docker Execution (Default)
+
 All languages (TypeScript, Go, PHP) are executed in secure Docker containers. This is the recommended mode for production.
 
 ### Native Go Execution (Optional)
+
 For development environments, you can enable native Go execution for faster compile times:
 
 1. Ensure Go is installed locally (`go version` should work)
 2. Add to your `packages/backend/.env`:
+
 ```
 USE_NATIVE_GO_EXECUTOR=true
 NATIVE_GO_TIMEOUT=45000
 ```
+
 3. Restart the backend server
 
 **Note**: Native execution is only available for Go challenges and requires Go to be installed on the host system.
-
-## Seeding the Database
-
-Before using the application, you'll need to seed the database with initial challenges and concepts:
-
-```bash
-# Navigate to the backend package
-cd packages/backend
-
-# Seed challenges
-npx ts-node src/scripts/seedChallenges.ts
-
-# Seed concepts
-npx ts-node src/scripts/seedConcepts.ts
-```
-
-Also is possible to reset user progress:
-
-```bash
-cd packages/backend
-# Reset all users (with confirmation)
-npx ts-node src/scripts/resetUserProgress.ts
-
-# Reset specific user
-npx ts-node src/scripts/resetUserProgress.ts --userId=user_id_here
-
-# Skip confirmation
-npx ts-node src/scripts/resetUserProgress.ts --yes
-
-# Completely remove progress data instead of resetting
-npx ts-node src/scripts/resetUserProgress.ts --remove
-```
-
-## Viewing the Database with MongoDB Compass
-
-You can use MongoDB Compass (a GUI for MongoDB) to visualize and interact with your database:
-
-1. Download and install [MongoDB Compass](https://www.mongodb.com/products/compass)
-2. Open MongoDB Compass
-3. Connect to your local MongoDB instance with the connection string:
-
-```
-mongodb://admin:password@localhost:27017/code-challenges?authSource=admin
-```
 
 4. Once connected, you can browse collections like `challenges`, `concepts`, `users`, and more
 
@@ -244,6 +309,56 @@ The AI Assistant helps users solve challenges without giving away the full solut
 
 ## Troubleshooting
 
+### Common Setup Issues
+
+#### MongoDB Authentication Error
+
+If you see `Command find requires authentication`:
+
+1. **Check your backend `.env` file** has the correct MongoDB URI:
+
+   ```bash
+   MONGODB_URI=mongodb://admin:password@localhost:27017/code-challenges?authSource=admin
+   ```
+
+2. **Restart your development server** after updating environment variables:
+   ```bash
+   npm run dev
+   ```
+
+#### GitHub OAuth "404 Not Found" Error
+
+If GitHub OAuth fails with a 404 error:
+
+1. **Verify your GitHub OAuth App settings**:
+
+   - Homepage URL: `http://localhost:5173`
+   - Callback URL: `http://localhost:3001/api/auth/github/callback`
+
+2. **Check your environment variables** have real values (not placeholders):
+
+   ```bash
+   # Backend .env should have real values like:
+   GITHUB_CLIENT_ID=Ov23li...  # Not "your-client-id"
+   GITHUB_CLIENT_SECRET=ghp_...  # Not "your-client-secret"
+   ```
+
+3. **Restart the development server** after updating OAuth credentials
+
+#### Frontend "No routes matched" Error
+
+If you see routing errors during OAuth:
+
+- This was a known issue that has been fixed in the current version
+- Make sure you're using the latest code
+
+#### Can't See User Profile Image
+
+The avatar should appear after logging in. If not:
+
+- The backend now automatically fetches user profile data including avatar
+- Check browser localStorage for user data: `localStorage.getItem('user')`
+
 ### Docker Issues
 
 If you encounter issues with MongoDB:
@@ -257,6 +372,13 @@ docker logs mongodb
 
 # Restart the container if needed
 docker restart mongodb
+
+# If container doesn't exist, recreate it:
+docker run --name mongodb \
+  -p 27017:27017 \
+  -e MONGO_INITDB_ROOT_USERNAME=admin \
+  -e MONGO_INITDB_ROOT_PASSWORD=password \
+  -d mongo
 ```
 
 ### AI Assistant Issues
@@ -293,19 +415,6 @@ code-challenge-platform/
 
 1. Challenge and concept data is stored in separate JSON files in the `data/` directory.
 2. The seed scripts read from these JSON files instead of having hardcoded data.
-
-### Running the Seeds
-
-You can run the seed scripts from the root of the monorepo:
-
-```bash
-# Regular seeding (skips existing entries)
-cd packages/backend
-# Seed Challenges
-npx ts-node src/scripts/seedChallenges.ts
-# Seed Concepts
-npx ts-node src/scripts/seedConcepts.ts
-```
 
 ### Contributing New Challenges or Concepts
 
@@ -396,22 +505,26 @@ We welcome contributions to the Code Challenge Platform! Here's how you can help
 ### Types of Contributions
 
 #### Adding New Challenges
+
 - Edit `data/challenges.json` to add new coding challenges
 - Follow the existing format and include comprehensive test cases
 - Run `npx ts-node src/scripts/seedChallenges.ts` to test your changes
 
 #### Adding New Concepts
+
 - Edit `data/concepts.json` to add new learning concepts
 - Ensure proper categorization and dependencies
 - Run `npx ts-node src/scripts/seedConcepts.ts` to test your changes
 
 #### Code Improvements
+
 - Bug fixes and performance improvements
 - New features and enhancements
 - UI/UX improvements
 - Documentation updates
 
 #### Testing
+
 - Write tests for new features
 - Improve existing test coverage
 - Report bugs and issues
