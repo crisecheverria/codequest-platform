@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#00ADD8" />
+  <circle cx="100" cy="100" r="80" fill="#007D9C" />
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#5FD3F3" stroke-width="4" />
+  
+  <!-- Structs Symbol -->
+  <g transform="translate(30, 35)">
+    <!-- type keyword -->
+    <text x="15" y="20" font-family="monospace" font-size="18" font-weight="bold" fill="white">type Person</text>
+    
+    <!-- struct keyword -->
+    <text x="25" y="40" font-family="monospace" font-size="16" font-weight="bold" fill="white">struct {</text>
+    
+    <!-- struct fields -->
+    <text x="10" y="60" font-family="monospace" font-size="14" font-weight="bold" fill="#FFD700">Name</text>
+    <text x="60" y="60" font-family="monospace" font-size="14" font-weight="bold" fill="white">string</text>
+    
+    <text x="10" y="75" font-family="monospace" font-size="14" font-weight="bold" fill="#FFD700">Age</text>
+    <text x="60" y="75" font-family="monospace" font-size="14" font-weight="bold" fill="white">int</text>
+    
+    <text x="10" y="90" font-family="monospace" font-size="14" font-weight="bold" fill="#FFD700">Email</text>
+    <text x="60" y="90" font-family="monospace" font-size="14" font-weight="bold" fill="white">string</text>
+    
+    <text x="25" y="110" font-family="monospace" font-size="16" font-weight="bold" fill="white">}</text>
+    
+    <!-- struct instantiation -->
+    <text x="0" y="135" font-family="monospace" font-size="12" font-weight="bold" fill="#FFD700">p := Person{</text>
+    <text x="5" y="150" font-family="monospace" font-size="10" font-weight="bold" fill="#FFD700">Name: "John",</text>
+    <text x="15" y="162" font-family="monospace" font-size="12" font-weight="bold" fill="#FFD700">}</text>
+  </g>
+  
+  <!-- Go gopher eyes (simplified) -->
+  <circle cx="70" cy="35" r="4" fill="white" />
+  <circle cx="130" cy="35" r="4" fill="white" />
+  
+  <!-- Small Stars -->
+  <circle cx="40" cy="160" r="3" fill="white" />
+  <circle cx="160" cy="160" r="4" fill="white" />
+  <circle cx="30" cy="70" r="2" fill="white" />
+  <circle cx="170" cy="80" r="3" fill="white" />
+</svg>

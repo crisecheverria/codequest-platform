@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#00ADD8" />
+  <circle cx="100" cy="100" r="80" fill="#007D9C" />
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#5FD3F3" stroke-width="4" />
+  
+  <!-- Maps Symbol -->
+  <g transform="translate(25, 40)">
+    <!-- Map declaration -->
+    <text x="10" y="25" font-family="monospace" font-size="16" font-weight="bold" fill="white">map[string]int</text>
+    
+    <!-- Map literal -->
+    <text x="35" y="50" font-family="monospace" font-size="20" font-weight="bold" fill="white">{</text>
+    
+    <!-- Key-value pairs -->
+    <text x="15" y="70" font-family="monospace" font-size="12" font-weight="bold" fill="#FFD700">"apple":</text>
+    <text x="70" y="70" font-family="monospace" font-size="12" font-weight="bold" fill="white">5</text>
+    
+    <text x="15" y="85" font-family="monospace" font-size="12" font-weight="bold" fill="#FFD700">"banana":</text>
+    <text x="70" y="85" font-family="monospace" font-size="12" font-weight="bold" fill="white">3</text>
+    
+    <text x="15" y="100" font-family="monospace" font-size="12" font-weight="bold" fill="#FFD700">"orange":</text>
+    <text x="70" y="100" font-family="monospace" font-size="12" font-weight="bold" fill="white">7</text>
+    
+    <text x="35" y="115" font-family="monospace" font-size="20" font-weight="bold" fill="white">}</text>
+    
+    <!-- Map access -->
+    <text x="5" y="135" font-family="monospace" font-size="14" font-weight="bold" fill="#FFD700">m["key"] = value</text>
+  </g>
+  
+  <!-- Go gopher eyes (simplified) -->
+  <circle cx="70" cy="35" r="4" fill="white" />
+  <circle cx="130" cy="35" r="4" fill="white" />
+  
+  <!-- Small Stars -->
+  <circle cx="40" cy="160" r="3" fill="white" />
+  <circle cx="160" cy="160" r="4" fill="white" />
+  <circle cx="30" cy="70" r="2" fill="white" />
+  <circle cx="170" cy="80" r="3" fill="white" />
+</svg>

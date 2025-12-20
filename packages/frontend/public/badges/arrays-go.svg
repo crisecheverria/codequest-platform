@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#00ADD8" />
+  <circle cx="100" cy="100" r="80" fill="#007D9C" />
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#5FD3F3" stroke-width="4" />
+  
+  <!-- Arrays Symbol -->
+  <g transform="translate(40, 45)">
+    <!-- Array declaration -->
+    <text x="5" y="25" font-family="monospace" font-size="18" font-weight="bold" fill="white">var arr</text>
+    
+    <!-- Array type -->
+    <text x="0" y="50" font-family="monospace" font-size="16" font-weight="bold" fill="#FFD700">[5]int</text>
+    
+    <!-- Array visualization -->
+    <rect x="10" y="65" width="20" height="15" stroke="white" stroke-width="2" fill="transparent" />
+    <rect x="30" y="65" width="20" height="15" stroke="white" stroke-width="2" fill="transparent" />
+    <rect x="50" y="65" width="20" height="15" stroke="white" stroke-width="2" fill="transparent" />
+    <rect x="70" y="65" width="20" height="15" stroke="white" stroke-width="2" fill="transparent" />
+    <rect x="90" y="65" width="20" height="15" stroke="white" stroke-width="2" fill="transparent" />
+    
+    <!-- Array indices -->
+    <text x="17" y="95" font-family="monospace" font-size="8" fill="white">0</text>
+    <text x="37" y="95" font-family="monospace" font-size="8" fill="white">1</text>
+    <text x="57" y="95" font-family="monospace" font-size="8" fill="white">2</text>
+    <text x="77" y="95" font-family="monospace" font-size="8" fill="white">3</text>
+    <text x="97" y="95" font-family="monospace" font-size="8" fill="white">4</text>
+    
+    <!-- Array access -->
+    <text x="10" y="115" font-family="monospace" font-size="14" font-weight="bold" fill="#FFD700">arr[0] = 42</text>
+  </g>
+  
+  <!-- Go gopher eyes (simplified) -->
+  <circle cx="70" cy="35" r="4" fill="white" />
+  <circle cx="130" cy="35" r="4" fill="white" />
+  
+  <!-- Small Stars -->
+  <circle cx="40" cy="160" r="3" fill="white" />
+  <circle cx="160" cy="160" r="4" fill="white" />
+  <circle cx="30" cy="70" r="2" fill="white" />
+  <circle cx="170" cy="80" r="3" fill="white" />
+</svg>

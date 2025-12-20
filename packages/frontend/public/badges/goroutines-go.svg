@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#00ADD8" />
+  <circle cx="100" cy="100" r="80" fill="#007D9C" />
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#5FD3F3" stroke-width="4" />
+  
+  <!-- Goroutines Symbol -->
+  <g transform="translate(30, 40)">
+    <!-- go keyword -->
+    <text x="30" y="25" font-family="monospace" font-size="20" font-weight="bold" fill="#FFD700">go</text>
+    
+    <!-- Function call -->
+    <text x="10" y="50" font-family="monospace" font-size="16" font-weight="bold" fill="white">doWork()</text>
+    
+    <!-- Multiple goroutines represented by parallel lines -->
+    <g stroke="white" stroke-width="3" fill="none">
+      <!-- First goroutine -->
+      <line x1="5" y1="70" x2="30" y2="70" />
+      <line x1="30" y1="70" x2="35" y2="85" />
+      <line x1="35" y1="85" x2="60" y2="85" />
+      
+      <!-- Second goroutine -->
+      <line x1="5" y1="95" x2="25" y2="95" />
+      <line x1="25" y1="95" x2="30" y2="110" />
+      <line x1="30" y1="110" x2="65" y2="110" />
+      
+      <!-- Third goroutine -->
+      <line x1="5" y1="120" x2="35" y2="120" />
+      <line x1="35" y1="120" x2="40" y2="135" />
+      <line x1="40" y1="135" x2="70" y2="135" />
+    </g>
+    
+    <!-- Concurrency symbols (arrows) -->
+    <text x="75" y="85" font-family="monospace" font-size="24" font-weight="bold" fill="#FFD700">→</text>
+    <text x="75" y="110" font-family="monospace" font-size="24" font-weight="bold" fill="#FFD700">→</text>
+    <text x="75" y="135" font-family="monospace" font-size="24" font-weight="bold" fill="#FFD700">→</text>
+    
+    <!-- WaitGroup -->
+    <text x="15" y="155" font-family="monospace" font-size="10" font-weight="bold" fill="white">sync.WaitGroup</text>
+  </g>
+  
+  <!-- Go gopher eyes (simplified) -->
+  <circle cx="70" cy="35" r="4" fill="white" />
+  <circle cx="130" cy="35" r="4" fill="white" />
+  
+  <!-- Small Stars -->
+  <circle cx="40" cy="160" r="3" fill="white" />
+  <circle cx="160" cy="160" r="4" fill="white" />
+  <circle cx="30" cy="70" r="2" fill="white" />
+  <circle cx="170" cy="80" r="3" fill="white" />
+</svg>
