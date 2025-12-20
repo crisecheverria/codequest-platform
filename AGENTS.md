@@ -21,3 +21,20 @@
 - **Testing**: Separate unit/integration tests, use descriptive test names, mock external dependencies
 - **Comments**: Document complex business logic, avoid obvious comments, use JSDoc for public APIs
 - **Async**: Use async/await over promises, handle errors at appropriate levels
+
+## Quality Assurance
+
+**IMPORTANT**: Before submitting any solution, agents MUST run the following commands to ensure code quality:
+
+```bash
+npm run build
+npm run lint
+```
+
+If either command fails:
+
+1. Fix all build errors and linting issues
+2. Re-run the commands until they pass
+3. Only then submit the solution as complete
+
+This ensures all code meets project standards and prevents CI/CD failures.

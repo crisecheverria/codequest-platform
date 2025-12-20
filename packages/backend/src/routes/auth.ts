@@ -9,7 +9,6 @@ const router = Router();
 // GitHub OAuth callback route (GET)
 router.get("/github/callback", async (req, res) => {
   const { code } = req.query;
-  console.log("Processing GitHub OAuth callback for code:", code);
 
   if (!code) {
     return res.status(400).json({ error: "Authorization code is required" });
@@ -49,7 +48,6 @@ router.get("/github/callback", async (req, res) => {
     }
 
     // Get user data from GitHub
-    console.log("Fetching user data from GitHub...");
     const userRes = await axios.get("https://api.github.com/user", {
       headers: {
         Authorization: `token ${accessToken}`,
@@ -70,7 +68,6 @@ router.get("/github/callback", async (req, res) => {
     console.log("Existing user found:", !!user);
 
     if (!user) {
-      console.log("Creating new user...");
       user = await UserModel.create({
         githubId: githubUser.id.toString(),
         username: githubUser.login,
@@ -135,7 +132,6 @@ router.get("/github/callback", async (req, res) => {
 
 router.post("/github", async (req, res) => {
   const { code } = req.body;
-  console.log("Processing GitHub authentication for code:", code);
 
   try {
     console.log("GitHub OAuth config:", {
@@ -172,7 +168,6 @@ router.post("/github", async (req, res) => {
     }
 
     // Get user data from GitHub
-    console.log("Fetching user data from GitHub...");
     const userRes = await axios.get("https://api.github.com/user", {
       headers: {
         Authorization: `token ${accessToken}`,
@@ -193,7 +188,6 @@ router.post("/github", async (req, res) => {
     console.log("Existing user found:", !!user);
 
     if (!user) {
-      console.log("Creating new user...");
       user = await UserModel.create({
         githubId: githubUser.id.toString(),
         username: githubUser.login,

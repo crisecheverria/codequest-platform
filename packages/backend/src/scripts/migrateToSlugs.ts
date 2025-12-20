@@ -8,7 +8,6 @@ dotenv.config();
 
 const migrateUserDataToSlugs = async () => {
   try {
-    console.log("Starting migration to slug-based user progress...");
     
     // Connect to database
     await connectDB();

@@ -169,7 +169,6 @@ export class GoExecutor {
     executionTime: [number, number],
   ): SubmissionResult {
     try {
-      console.log("Processing Go execution results...");
       const timeInMs = executionTime[0] * 1000 + executionTime[1] / 1000000;
 
       // Docker logs have an 8-byte header that needs to be stripped
@@ -182,14 +181,12 @@ export class GoExecutor {
         outputStr = outputStr.substring(8);
       }
 
-      console.log("Raw Go logs length:", outputStr.length);
       if (outputStr.length > 200) {
         console.log(
           "Raw Go logs preview:",
           outputStr.substring(0, 200) + "...",
         );
       } else {
-        console.log("Raw Go logs:", outputStr);
       }
 
       // Check for compilation and execution errors
@@ -303,7 +300,6 @@ export class GoExecutor {
     // Use native executor if configured and available
     if (config.executor.useNativeGo) {
       try {
-        console.log("🚀 Attempting native Go execution...");
         const isAvailable = await this.nativeExecutor.isAvailable();
 
         if (isAvailable) {
@@ -312,7 +308,7 @@ export class GoExecutor {
             testCases,
             metadata,
           );
-          console.log("✅ Native Go execution completed successfully");
+
           return result;
         } else {
           console.log(
@@ -336,7 +332,6 @@ export class GoExecutor {
     testCases: TestCase[],
     metadata: ChallengeMetadata,
   ): Promise<SubmissionResult> {
-    console.log("🐳 Using Docker Go execution (fallback)");
     const containerId = uuidv4();
     let files: {
       userCodeFile: string;
