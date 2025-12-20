@@ -1,0 +1,147 @@
+# CODEOWNERS file for CodeQuest Platform
+# This file defines who needs to review changes to different parts of the codebase
+# 
+# For more info about CODEOWNERS file format, see:
+# https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-on-github/about-code-owners
+
+# ==============================================================================
+# Global Ownership
+# ==============================================================================
+
+# Default owners for everything in the repo
+# These users will be requested for review when someone opens a pull request
+* @crisecheverria
+
+# ==============================================================================
+# Root Configuration Files
+# ==============================================================================
+
+# Package management and workspace configuration
+package.json @crisecheverria
+package-lock.json @crisecheverria
+/.gitignore @crisecheverria
+/README.md @crisecheverria
+/LICENSE @crisecheverria
+
+# ==============================================================================
+# CI/CD and GitHub Configuration
+# ==============================================================================
+
+# GitHub workflows and actions
+/.github/ @crisecheverria
+
+# CODEOWNERS file itself (requires admin approval)
+/.github/CODEOWNERS @crisecheverria
+
+# ==============================================================================
+# Backend Package
+# ==============================================================================
+
+# Backend package configuration
+/packages/backend/package.json @crisecheverria
+/packages/backend/tsconfig.json @crisecheverria
+/packages/backend/jest.config.js @crisecheverria
+/packages/backend/.eslintrc.js @crisecheverria
+
+# Backend source code - main areas
+/packages/backend/src/ @crisecheverria
+
+# Backend models (database schema changes require careful review)
+/packages/backend/src/models/ @crisecheverria
+
+# Backend API routes (public interface changes)
+/packages/backend/src/routes/ @crisecheverria
+
+# Backend services (business logic)
+/packages/backend/src/services/ @crisecheverria
+
+# Backend configuration (security sensitive)
+/packages/backend/src/config/ @crisecheverria
+
+# Database migrations and scripts
+/packages/backend/src/scripts/ @crisecheverria
+/packages/backend/src/db/ @crisecheverria
+
+# Backend middleware (auth, error handling)
+/packages/backend/src/middleware/ @crisecheverria
+
+# Backend tests
+/packages/backend/src/__tests__/ @crisecheverria
+
+# Dockerfiles and containers (deployment critical)
+/packages/backend/Dockerfile* @crisecheverria
+/packages/backend/*.sh @crisecheverria
+
+# Go executor (performance critical)
+/packages/backend/go-executor/ @crisecheverria
+
+# Data files (challenge and concept definitions)
+/packages/backend/data/ @crisecheverria
+
+# ==============================================================================
+# Frontend Package
+# ==============================================================================
+
+# Frontend package configuration
+/packages/frontend/package.json @crisecheverria
+/packages/frontend/tsconfig.json @crisecheverria
+/packages/frontend/vite.config.ts @crisecheverria
+/packages/frontend/vitest.config.ts @crisecheverria
+/packages/frontend/tailwind.config.js @crisecheverria
+/packages/frontend/postcss.config.js @crisecheverria
+/packages/frontend/eslint.config.js @crisecheverria
+
+# Frontend source code
+/packages/frontend/src/ @crisecheverria
+
+# Frontend components
+/packages/frontend/src/components/ @crisecheverria
+
+# Frontend API layer
+/packages/frontend/src/api/ @crisecheverria
+
+# Frontend types (interface definitions)
+/packages/frontend/src/types/ @crisecheverria
+
+# Frontend tests
+/packages/frontend/src/__tests__/ @crisecheverria
+
+# Frontend build configuration
+/packages/frontend/index.html @crisecheverria
+/packages/frontend/public/ @crisecheverria
+
+# ==============================================================================
+# Documentation
+# ==============================================================================
+
+# Documentation files
+*.md @crisecheverria
+/docs/ @crisecheverria
+
+# ==============================================================================
+# Security and Configuration
+# ==============================================================================
+
+# Environment files and security configs
+*.env* @crisecheverria
+.audit-ci.json @crisecheverria
+
+# ==============================================================================
+# Special Cases - Multiple Reviewers (Examples for future use)
+# ==============================================================================
+
+# Uncomment and modify these when you have multiple team members:
+#
+# Critical security files (require multiple approvals)
+# /packages/backend/src/middleware/auth.ts @crisecheverria @security-team
+# /packages/backend/src/config/index.ts @crisecheverria @security-team
+#
+# Database models (require backend team review)
+# /packages/backend/src/models/ @crisecheverria @backend-team
+#
+# Frontend components (require frontend team review)  
+# /packages/frontend/src/components/ @crisecheverria @frontend-team
+#
+# API contracts (require both backend and frontend teams)
+# /packages/backend/src/routes/ @crisecheverria @backend-team @frontend-team
+# /packages/frontend/src/api/ @crisecheverria @backend-team @frontend-team

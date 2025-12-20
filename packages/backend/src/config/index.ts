@@ -82,15 +82,27 @@ export const config: AppConfig = {
   mongoUri: getMongoUri(),
   environment: process.env.NODE_ENV || "development",
   docker: {
-    memory: process.env.DOCKER_MEMORY_LIMIT || "128m",
-    cpuQuota: process.env.DOCKER_CPU_QUOTA || "100000",
-    timeout: process.env.DOCKER_TIMEOUT || "10000",
-    goTimeout: process.env.DOCKER_GO_TIMEOUT || "35000",
+    memory:
+      process.env.DOCKER_MEMORY_LIMIT ||
+      (process.env.NODE_ENV === "production" ? "512m" : "256m"),
+    cpuQuota:
+      process.env.DOCKER_CPU_QUOTA ||
+      (process.env.NODE_ENV === "production" ? "200000" : "100000"),
+    timeout:
+      process.env.DOCKER_TIMEOUT ||
+      (process.env.NODE_ENV === "production" ? "60000" : "30000"),
+    goTimeout:
+      process.env.DOCKER_GO_TIMEOUT ||
+      (process.env.NODE_ENV === "production" ? "120000" : "60000"),
     tempDir: process.env.RUNNER_TEMP_DIR || path.join(process.cwd(), "temp"),
   },
   executor: {
     useNativeGo: process.env.USE_NATIVE_GO_EXECUTOR === "true",
-    nativeGoTimeout: parseInt(process.env.NATIVE_GO_TIMEOUT || "45000", 10), // 45 seconds default for production
+    nativeGoTimeout: parseInt(
+      process.env.NATIVE_GO_TIMEOUT ||
+        (process.env.NODE_ENV === "production" ? "90000" : "45000"),
+      10,
+    ),
   },
   github: {
     clientId: process.env.GITHUB_CLIENT_ID || "",
