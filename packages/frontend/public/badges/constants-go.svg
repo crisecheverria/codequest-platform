@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#00ADD8" />
+  <circle cx="100" cy="100" r="80" fill="#007D9C" />
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#5FD3F3" stroke-width="4" />
+  
+  <!-- Constants Symbol -->
+  <g transform="translate(40, 45)">
+    <!-- const keyword -->
+    <text x="0" y="25" font-family="monospace" font-size="20" font-weight="bold" fill="white">const</text>
+    
+    <!-- Variable name -->
+    <text x="10" y="55" font-family="monospace" font-size="18" font-weight="bold" fill="#FFD700">NAME</text>
+    
+    <!-- Assignment and value -->
+    <text x="20" y="85" font-family="monospace" font-size="16" font-weight="bold" fill="white">= "value"</text>
+    
+    <!-- iota symbol -->
+    <text x="35" y="110" font-family="serif" font-size="24" font-weight="bold" fill="#FFD700">ι</text>
+  </g>
+  
+  <!-- Go gopher eyes (simplified) -->
+  <circle cx="70" cy="35" r="4" fill="white" />
+  <circle cx="130" cy="35" r="4" fill="white" />
+  
+  <!-- Small Stars -->
+  <circle cx="40" cy="160" r="3" fill="white" />
+  <circle cx="160" cy="160" r="4" fill="white" />
+  <circle cx="30" cy="70" r="2" fill="white" />
+  <circle cx="170" cy="80" r="3" fill="white" />
+</svg>

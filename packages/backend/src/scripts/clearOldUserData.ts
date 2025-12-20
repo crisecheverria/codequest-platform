@@ -21,7 +21,6 @@ const confirm = async (message: string): Promise<boolean> => {
 
 const clearOldUserData = async () => {
   try {
-    console.log("Starting cleanup of old user data for slug migration...");
     
     // Connect to database
     await connectDB();

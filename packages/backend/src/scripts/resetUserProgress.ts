@@ -40,7 +40,6 @@ const parseArgs = () => {
 
 const resetUserProgress = async () => {
   try {
-    console.log("Starting user progress reset process...");
     console.log("Environment variables loaded:", {
       MONGODB_URI: process.env.MONGODB_URI ? "Set (masked)" : "Not set",
       MONGODB_USER: process.env.MONGODB_USER ? "Set" : "Not set",

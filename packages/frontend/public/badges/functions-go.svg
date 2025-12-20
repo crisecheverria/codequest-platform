@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#00ADD8" />
+  <circle cx="100" cy="100" r="80" fill="#007D9C" />
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#5FD3F3" stroke-width="4" />
+  
+  <!-- Functions Symbol -->
+  <g transform="translate(30, 45)">
+    <!-- func keyword -->
+    <text x="15" y="25" font-family="monospace" font-size="22" font-weight="bold" fill="white">func</text>
+    
+    <!-- Function signature -->
+    <text x="0" y="55" font-family="monospace" font-size="16" font-weight="bold" fill="#FFD700">getName</text>
+    <text x="75" y="55" font-family="monospace" font-size="16" font-weight="bold" fill="white">( )</text>
+    
+    <!-- Return type -->
+    <text x="25" y="80" font-family="monospace" font-size="16" font-weight="bold" fill="white">string</text>
+    
+    <!-- Function body -->
+    <text x="40" y="110" font-family="monospace" font-size="20" font-weight="bold" fill="white">{ }</text>
+  </g>
+  
+  <!-- Go gopher eyes (simplified) -->
+  <circle cx="70" cy="35" r="4" fill="white" />
+  <circle cx="130" cy="35" r="4" fill="white" />
+  
+  <!-- Small Stars -->
+  <circle cx="40" cy="160" r="3" fill="white" />
+  <circle cx="160" cy="160" r="4" fill="white" />
+  <circle cx="30" cy="70" r="2" fill="white" />
+  <circle cx="170" cy="80" r="3" fill="white" />
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#00ADD8" />
+  <circle cx="100" cy="100" r="80" fill="#007D9C" />
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#5FD3F3" stroke-width="4" />
+  
+  <!-- Conditionals Symbol -->
+  <g transform="translate(35, 40)">
+    <!-- if statement -->
+    <text x="25" y="25" font-family="monospace" font-size="20" font-weight="bold" fill="white">if</text>
+    <text x="50" y="25" font-family="monospace" font-size="16" font-weight="bold" fill="#FFD700">x > 0</text>
+    
+    <!-- Opening brace -->
+    <text x="45" y="50" font-family="monospace" font-size="18" font-weight="bold" fill="white">{</text>
+    
+    <!-- else branch -->
+    <text x="15" y="75" font-family="monospace" font-size="18" font-weight="bold" fill="white">} else {</text>
+    
+    <!-- Closing brace -->
+    <text x="45" y="100" font-family="monospace" font-size="18" font-weight="bold" fill="white">}</text>
+    
+    <!-- Switch symbol -->
+    <text x="10" y="125" font-family="monospace" font-size="16" font-weight="bold" fill="#FFD700">switch</text>
+  </g>
+  
+  <!-- Go gopher eyes (simplified) -->
+  <circle cx="70" cy="35" r="4" fill="white" />
+  <circle cx="130" cy="35" r="4" fill="white" />
+  
+  <!-- Small Stars -->
+  <circle cx="40" cy="160" r="3" fill="white" />
+  <circle cx="160" cy="160" r="4" fill="white" />
+  <circle cx="30" cy="70" r="2" fill="white" />
+  <circle cx="170" cy="80" r="3" fill="white" />
+</svg>

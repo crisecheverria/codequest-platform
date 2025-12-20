@@ -34,7 +34,6 @@ const CreateChallengeSchema = z.object({
 // Get all challenges
 router.get("/", async (req, res) => {
   try {
-    console.log("Fetching all challenges...");
     
     // Build filter object from query parameters
     const filter: any = {};
@@ -237,7 +236,6 @@ router.get("/next", authMiddleware, async (req: Request, res: Response) => {
 // Get single challenge by slug or ID (for backwards compatibility)
 router.get("/:identifier", async (req, res) => {
   try {
-    console.log("Fetching challenge with identifier:", req.params.identifier); // Debug log
     
     // Try to find by slug first, then by ID for backwards compatibility
     let challenge = await ChallengeModel.findOne({ slug: req.params.identifier });
@@ -310,7 +308,6 @@ router.get("/:identifier", async (req, res) => {
       responseData.userProgress = userProgress;
     }
 
-    console.log("Found challenge:", challenge); // Debug log
     res.json({
       challenge: responseData
     });

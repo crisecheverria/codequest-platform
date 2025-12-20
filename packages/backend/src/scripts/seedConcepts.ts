@@ -426,11 +426,9 @@ const updateChallengesWithConcepts = async () => {
           { _id: existingChallenge._id },
           { $set: challenge }
         );
-        console.log(`✓ Updated PHP algorithm challenge: ${challenge.title}`);
       } else {
         // Create a new challenge
         await challengeCollection.insertOne(challenge);
-        console.log(`✓ Created PHP algorithm challenge: ${challenge.title}`);
       }
     } catch (error) {
       console.error(
@@ -606,7 +604,6 @@ const updateChallengesWithConcepts = async () => {
 // Main function to seed concepts
 const seedConcepts = async () => {
   try {
-    console.log("Starting concept seeding process...");
 
     // Connect to the database
     await connectDB();
@@ -666,14 +663,12 @@ const seedConcepts = async () => {
 
           if (!exists) {
             await ConceptModel.create(concept);
-            console.log(`✓ Created concept: ${concept.name}`);
             created++;
           } else {
             await ConceptModel.findOneAndUpdate(
               { slug: concept.slug },
               concept
             );
-            console.log(`↻ Updated concept: ${concept.name}`);
             updated++;
           }
         } catch (error) {
