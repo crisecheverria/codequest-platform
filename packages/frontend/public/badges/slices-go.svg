@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#00ADD8" />
+  <circle cx="100" cy="100" r="80" fill="#007D9C" />
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#5FD3F3" stroke-width="4" />
+  
+  <!-- Slices Symbol -->
+  <g transform="translate(35, 45)">
+    <!-- Slice declaration -->
+    <text x="5" y="25" font-family="monospace" font-size="18" font-weight="bold" fill="white">slice :=</text>
+    
+    <!-- make function -->
+    <text x="15" y="50" font-family="monospace" font-size="16" font-weight="bold" fill="#FFD700">make([]int, 3)</text>
+    
+    <!-- Dynamic slice visualization with expansion -->
+    <rect x="10" y="65" width="18" height="15" stroke="white" stroke-width="2" fill="#FFD700" fill-opacity="0.3" />
+    <rect x="28" y="65" width="18" height="15" stroke="white" stroke-width="2" fill="#FFD700" fill-opacity="0.3" />
+    <rect x="46" y="65" width="18" height="15" stroke="white" stroke-width="2" fill="#FFD700" fill-opacity="0.3" />
+    
+    <!-- Expandable area (dashed) -->
+    <rect x="64" y="65" width="18" height="15" stroke="white" stroke-width="1" stroke-dasharray="3,3" fill="transparent" />
+    <rect x="82" y="65" width="18" height="15" stroke="white" stroke-width="1" stroke-dasharray="3,3" fill="transparent" />
+    
+    <!-- append operation -->
+    <text x="0" y="100" font-family="monospace" font-size="14" font-weight="bold" fill="#FFD700">append(slice, 42)</text>
+    
+    <!-- Slice notation -->
+    <text x="15" y="120" font-family="monospace" font-size="12" font-weight="bold" fill="white">slice[1:3]</text>
+  </g>
+  
+  <!-- Go gopher eyes (simplified) -->
+  <circle cx="70" cy="35" r="4" fill="white" />
+  <circle cx="130" cy="35" r="4" fill="white" />
+  
+  <!-- Small Stars -->
+  <circle cx="40" cy="160" r="3" fill="white" />
+  <circle cx="160" cy="160" r="4" fill="white" />
+  <circle cx="30" cy="70" r="2" fill="white" />
+  <circle cx="170" cy="80" r="3" fill="white" />
+</svg>

@@ -363,14 +363,11 @@ runTests();`;
   ): SubmissionResult {
     const outputStr = logs.toString("utf8");
     // eslint-disable-next-line no-console
-    console.log("Raw logs length:", outputStr.length);
 
     if (outputStr.length > 200) {
       // eslint-disable-next-line no-console
-      console.log("Raw logs preview:", outputStr.substring(0, 200) + "...");
     } else {
       // eslint-disable-next-line no-console
-      console.log("Raw logs:", outputStr);
     }
 
     const results: ExecutionResult[] = [];

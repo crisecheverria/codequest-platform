@@ -29,7 +29,6 @@ router.get(
   protectedRoute(async (req: AuthRequest, res: Response) => {
     try {
       const user = req.user;
-      console.log("Fetching stats for user:", user._id);
 
       // Get total challenges count
       const totalChallenges = await ChallengeModel.countDocuments();

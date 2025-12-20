@@ -9,7 +9,6 @@ dotenv.config();
 
 const seedChallenges = async () => {
   try {
-    console.log("Starting challenge seeding process...");
     console.log("Environment variables loaded:", {
       MONGODB_URI: process.env.MONGODB_URI ? "Set (masked)" : "Not set",
       MONGODB_USER: process.env.MONGODB_USER ? "Set" : "Not set",
@@ -83,7 +82,6 @@ const seedChallenges = async () => {
         if (!exists) {
           // Create new challenge
           await ChallengeModel.create(challenge);
-          console.log(`✓ Created: ${challenge.title}`);
           created++;
         } else if (forceUpdate) {
           // Update if forceUpdate is true
@@ -91,10 +89,8 @@ const seedChallenges = async () => {
             { title: challenge.title },
             challenge
           );
-          console.log(`↻ Updated: ${challenge.title}`);
           updated++;
         } else {
-          console.log(`⤫ Skipped: ${challenge.title} (already exists)`);
           skipped++;
         }
       } catch (error) {

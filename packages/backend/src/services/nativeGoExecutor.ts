@@ -328,7 +328,6 @@ func main() {
 
     // Create unique execution directory
     const execDir = await fs.mkdtemp(path.join(os.tmpdir(), "go-native-"));
-    console.log(`📁 Created execution directory: ${execDir}`);
 
     try {
       // Write Go code to main.go

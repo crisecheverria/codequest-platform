@@ -61,7 +61,6 @@ const fixTSAlgorithmTags = async () => {
       })
       .toArray();
 
-    console.log("\nUpdated state of TypeScript algorithm challenges:");
     updatedChallenges.forEach((c) => {
       console.log(
         `${c.title} (${c.functionName}): ${JSON.stringify(c.conceptTags)}`

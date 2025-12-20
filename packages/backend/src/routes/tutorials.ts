@@ -48,7 +48,6 @@ router.get("/", async (req, res) => {
       .sort({ order: 1 });
     
     // eslint-disable-next-line no-console
-    console.log("Found tutorials:", tutorials.length);
     
     res.json(tutorials);
   } catch (error) {

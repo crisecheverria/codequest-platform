@@ -19,7 +19,6 @@ import tutorialRoutes from "./routes/tutorials";
 const app: Express = express();
 const port = config.port;
 // Add startup logging
-console.log("Starting application...");
 console.log("Environment variables:", {
   PORT: process.env.PORT,
   NODE_ENV: process.env.NODE_ENV,
