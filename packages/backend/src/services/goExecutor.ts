@@ -186,7 +186,6 @@ export class GoExecutor {
           "Raw Go logs preview:",
           outputStr.substring(0, 200) + "...",
         );
-      } else {
       }
 
       // Check for compilation and execution errors
