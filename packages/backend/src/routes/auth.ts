@@ -1,4 +1,4 @@
-import { Router, Response } from "express";
+import { Router } from "express";
 import jwt, { Secret } from "jsonwebtoken";
 import axios from "axios";
 import { UserModel } from "../models/User";
@@ -31,7 +31,6 @@ router.get("/github/callback", async (req, res) => {
         },
       },
     );
-
 
     const accessToken = tokenRes.data.access_token;
     if (!accessToken) {
@@ -132,7 +131,6 @@ router.post("/github", async (req, res) => {
       },
     );
 
-
     const accessToken = tokenRes.data.access_token;
     if (!accessToken) {
       throw new Error("No access token received from GitHub");
@@ -145,7 +143,6 @@ router.post("/github", async (req, res) => {
         "User-Agent": "Code-Challenge-Platform",
       },
     });
-
 
     const githubUser = userRes.data;
 
