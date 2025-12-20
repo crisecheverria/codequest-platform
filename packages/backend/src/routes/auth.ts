@@ -3,26 +3,20 @@ import jwt, { Secret } from "jsonwebtoken";
 import axios from "axios";
 import { UserModel } from "../models/User";
 import { config } from "../config";
+import { authMiddleware, AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
 // GitHub OAuth callback route (GET)
 router.get("/github/callback", async (req, res) => {
   const { code } = req.query;
-  console.log("Processing GitHub OAuth callback for code:", code);
 
   if (!code) {
     return res.status(400).json({ error: "Authorization code is required" });
   }
 
   try {
-    console.log("GitHub OAuth config:", {
-      clientId: config.github.clientId,
-      callbackUrl: config.github.callbackUrl,
-    });
-
     // Exchange code for access token
-    console.log("Exchanging code for access token...");
     const tokenRes = await axios.post(
       "https://github.com/login/oauth/access_token",
       {
@@ -35,13 +29,8 @@ router.get("/github/callback", async (req, res) => {
         headers: {
           Accept: "application/json",
         },
-      }
+      },
     );
-
-    console.log("Token response received:", {
-      status: tokenRes.status,
-      hasAccessToken: !!tokenRes.data.access_token,
-    });
 
     const accessToken = tokenRes.data.access_token;
     if (!accessToken) {
@@ -49,7 +38,6 @@ router.get("/github/callback", async (req, res) => {
     }
 
     // Get user data from GitHub
-    console.log("Fetching user data from GitHub...");
     const userRes = await axios.get("https://api.github.com/user", {
       headers: {
         Authorization: `token ${accessToken}`,
@@ -57,49 +45,38 @@ router.get("/github/callback", async (req, res) => {
       },
     });
 
-    console.log("GitHub user data received:", {
-      id: userRes.data.id,
-      login: userRes.data.login,
-      hasEmail: !!userRes.data.email,
-    });
-
     const githubUser = userRes.data;
 
     // Find or create user
     let user = await UserModel.findOne({ githubId: githubUser.id.toString() });
-    console.log("Existing user found:", !!user);
 
     if (!user) {
-      console.log("Creating new user...");
       user = await UserModel.create({
         githubId: githubUser.id.toString(),
         username: githubUser.login,
         email: githubUser.email,
         avatarUrl: githubUser.avatar_url,
       });
-      console.log("New user created:", user._id);
     }
 
     // Update last login and handle data migration if needed
     user.lastLogin = new Date();
-    
+
     // Check if user has old submission data that needs migration
     if (user.submissions && user.submissions.length > 0) {
-      const hasOldSubmissions = user.submissions.some(sub => !sub.challengeSlug && (sub as any).challengeId);
-      
+      const hasOldSubmissions = user.submissions.some(
+        (sub) => !sub.challengeSlug && (sub as any).challengeId,
+      );
+
       if (hasOldSubmissions) {
-        console.log("User has old submission data, clearing submissions for schema compatibility...");
         user.submissions = [];
         user.completedChallenges = [];
-        console.log("Old submission data cleared");
       }
     }
-    
+
     await user.save();
-    console.log("User last login updated");
 
     // Generate JWT
-    console.log("Generating JWT...");
     const token = jwt.sign(
       {
         userId: user._id.toString(),
@@ -108,9 +85,8 @@ router.get("/github/callback", async (req, res) => {
       config.jwt.secret as Secret,
       {
         expiresIn: "7d",
-      }
+      },
     );
-    console.log("JWT generated successfully");
 
     // Redirect to frontend with token
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -129,23 +105,17 @@ router.get("/github/callback", async (req, res) => {
     });
 
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    res.redirect(`${frontendUrl}/auth/error?message=${encodeURIComponent("Authentication failed")}`);
+    res.redirect(
+      `${frontendUrl}/login?error=authentication_failed&message=${encodeURIComponent("Authentication failed")}`,
+    );
   }
 });
 
 router.post("/github", async (req, res) => {
   const { code } = req.body;
-  console.log("Processing GitHub authentication for code:", code);
 
   try {
-    console.log("GitHub OAuth config:", {
-      clientId: config.github.clientId,
-      callbackUrl: config.github.callbackUrl,
-      // Don't log the secret!
-    });
-
     // Exchange code for access token
-    console.log("Exchanging code for access token...");
     const tokenRes = await axios.post(
       "https://github.com/login/oauth/access_token",
       {
@@ -158,13 +128,8 @@ router.post("/github", async (req, res) => {
         headers: {
           Accept: "application/json",
         },
-      }
+      },
     );
-
-    console.log("Token response received:", {
-      status: tokenRes.status,
-      hasAccessToken: !!tokenRes.data.access_token,
-    });
 
     const accessToken = tokenRes.data.access_token;
     if (!accessToken) {
@@ -172,7 +137,6 @@ router.post("/github", async (req, res) => {
     }
 
     // Get user data from GitHub
-    console.log("Fetching user data from GitHub...");
     const userRes = await axios.get("https://api.github.com/user", {
       headers: {
         Authorization: `token ${accessToken}`,
@@ -180,51 +144,38 @@ router.post("/github", async (req, res) => {
       },
     });
 
-    console.log("GitHub user data received:", {
-      id: userRes.data.id,
-      login: userRes.data.login,
-      hasEmail: !!userRes.data.email,
-    });
-
     const githubUser = userRes.data;
 
     // Find or create user
     let user = await UserModel.findOne({ githubId: githubUser.id.toString() });
-    console.log("Existing user found:", !!user);
 
     if (!user) {
-      console.log("Creating new user...");
       user = await UserModel.create({
         githubId: githubUser.id.toString(),
         username: githubUser.login,
         email: githubUser.email,
         avatarUrl: githubUser.avatar_url,
       });
-      console.log("New user created:", user._id);
     }
 
     // Update last login and handle data migration if needed
     user.lastLogin = new Date();
-    
+
     // Check if user has old submission data that needs migration
     if (user.submissions && user.submissions.length > 0) {
-      const hasOldSubmissions = user.submissions.some(sub => !sub.challengeSlug && (sub as any).challengeId);
-      
+      const hasOldSubmissions = user.submissions.some(
+        (sub) => !sub.challengeSlug && (sub as any).challengeId,
+      );
+
       if (hasOldSubmissions) {
-        console.log("User has old submission data, clearing submissions for schema compatibility...");
-        // For now, we'll clear old submissions to avoid validation errors
-        // In production, you'd want to create a proper migration script
         user.submissions = [];
         user.completedChallenges = [];
-        console.log("Old submission data cleared");
       }
     }
-    
+
     await user.save();
-    console.log("User last login updated");
 
     // Generate JWT
-    console.log("Generating JWT...");
     const token = jwt.sign(
       {
         userId: user._id.toString(),
@@ -233,9 +184,8 @@ router.post("/github", async (req, res) => {
       config.jwt.secret as Secret,
       {
         expiresIn: "7d",
-      }
+      },
     );
-    console.log("JWT generated successfully");
 
     res.json({ token, user });
   } catch (error) {
@@ -255,6 +205,27 @@ router.post("/github", async (req, res) => {
       error: "Authentication failed",
       details: error instanceof Error ? error.message : "Unknown error",
     });
+  }
+});
+
+// Get current user profile
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const authReq = req as AuthRequest;
+    const user = authReq.user;
+    // Return user data without sensitive information
+    res.json({
+      id: user._id,
+      githubId: user.githubId,
+      username: user.username,
+      email: user.email,
+      avatarUrl: user.avatarUrl,
+      createdAt: user.createdAt,
+      lastLogin: user.lastLogin,
+    });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ error: "Failed to fetch user profile" });
   }
 });
 
