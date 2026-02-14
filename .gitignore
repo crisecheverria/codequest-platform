@@ -44,3 +44,16 @@ repomix-output.txt
 # Don't exclude data directory, as it contains our source JSON files
 # data/
 .aider*
+
+# Ignore Cursor IDE files
+.cursor/
+AGENT.md
+WARP.md
+.clinerules/byterover-rules.md
+.kilocode/rules/byterover-rules.md
+.roo/rules/byterover-rules.md
+.windsurf/rules/byterover-rules.md
+.cursor/rules/byterover-rules.mdc
+.kiro/steering/byterover-rules.md
+.qoder/rules/byterover-rules.md
+.augment/rules/byterover-rules.md

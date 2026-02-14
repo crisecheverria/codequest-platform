@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   LightBulbIcon,
   ChevronUpIcon,
@@ -39,7 +39,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
   const [usesMockData, setUsesMockData] = useState(false);
 
   // Fetch a suggestion based on the current code and help level
-  const fetchSuggestion = async () => {
+  const fetchSuggestion = useCallback(async () => {
     if (loading || !challenge) return;
 
     setLoading(true);
@@ -78,7 +78,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading, challenge, code, helpLevel]);
 
   // Helper function for typing animation
   const animateTypingEffect = (text: string) => {
